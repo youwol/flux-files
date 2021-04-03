@@ -1,0 +1,116 @@
+import { instantiateModules, ModuleError, parseGraph, Runner,  } from "@youwol/flux-core"
+import { mergeMap, tap } from "rxjs/operators"
+import { ModuleFilePicker } from "../lib/file-picker.module"
+import { Interfaces } from "../lib/implementation/interfaces"
+import { LocalDrive } from "../lib/implementation/local-drive"
+import { ModuleLocalDrive } from "../lib/local-drive.module"
+import { ModuleReader } from "../lib/reader.module"
+import { MockFolderHandler } from "./mock-folder-handler"
+
+console.log = ()=>{}
+export let mockData = {
+    "":{
+        files:{
+            "fileText": new Blob(["text content"]),
+            "fileJson": new Blob([JSON.stringify({value:"json content"})]),
+            "fileJavascript": new Blob(["return () => 4"]),
+            "fileJavascriptError": new Blob(["return ( :> 4"]),
+        },
+        folders:[
+        ]
+    }
+}
+
+window['showDirectoryPicker'] = () => {
+    return new Promise(cb => cb(new MockFolderHandler(mockData)))
+}
+
+function createWorkflow({fileId, mode}){
+
+    let branches = [
+        '-|~localDrive~|---|~filePicker~|---|~reader~|-'
+    ] 
+    let modules     : {
+        localDrive: ModuleLocalDrive.Module,
+        filePicker: ModuleFilePicker.Module,
+        reader:     ModuleReader.Module
+    } = instantiateModules({
+        localDrive: ModuleLocalDrive,
+        filePicker: [ModuleFilePicker, {fileId}],
+        reader: [ModuleReader, {mode}]
+    }) 
+    let graph       = parseGraph( { branches, modules } )
+    return {graph, modules}
+}
+
+test('reader text OK', (done) => {
+    
+    let {graph, modules}       = createWorkflow({fileId: 'fileText', mode:ModuleReader.Mode.TEXT})
+    
+    new Runner( graph )
+    document.querySelectorAll('button').item(0).dispatchEvent(new MouseEvent('click'))
+
+    modules.reader.content$.pipe(
+    ).subscribe( ({data}) => {
+        expect(data.content).toEqual("text content")
+        done()
+    })
+})
+
+test('reader json OK', (done) => {
+    
+    let {graph, modules}       = createWorkflow({fileId: 'fileJson', mode:ModuleReader.Mode.JSON})
+    
+    new Runner( graph )
+    document.querySelectorAll('button').item(0).dispatchEvent(new MouseEvent('click'))
+
+    modules.reader.content$.pipe(
+    ).subscribe( ({data}) => {
+        expect(data.content).toEqual({value:"json content"})
+        done()
+    })
+})
+
+test('reader json error', (done) => {
+    
+    let {graph, modules}       = createWorkflow({fileId: 'fileText', mode:ModuleReader.Mode.JSON})
+    
+    new Runner( graph )
+    document.querySelectorAll('button').item(0).dispatchEvent(new MouseEvent('click'))
+
+    modules.reader.notifier$.subscribe(
+        (message) => {
+            expect(message).toBeInstanceOf(ModuleError)
+            done()
+    })
+})
+
+
+
+test('reader javascript OK', (done) => {
+    
+    let {graph, modules}       = createWorkflow({fileId: 'fileJavascript', mode:ModuleReader.Mode.JAVASCRIPT})
+    
+    new Runner( graph )
+    document.querySelectorAll('button').item(0).dispatchEvent(new MouseEvent('click'))
+
+    modules.reader.content$.pipe(
+    ).subscribe( ({data}) => {
+        expect(data.content()).toEqual(4)
+        done()
+    })
+})
+
+test('reader javascript parse error', (done) => {
+    
+    let {graph, modules}       = createWorkflow({fileId: 'fileJavascriptError', mode:ModuleReader.Mode.JAVASCRIPT})
+    
+    new Runner( graph )
+    document.querySelectorAll('button').item(0).dispatchEvent(new MouseEvent('click'))
+
+    modules.reader.notifier$.subscribe(
+        (message) => {
+            expect(message).toBeInstanceOf(ModuleError)
+            done()
+    })
+})

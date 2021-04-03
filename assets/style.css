@@ -1,0 +1,70 @@
+
+
+body{
+  position: absolute;
+  width:100%
+}
+
+.group.header{
+  background-color: #222831;
+  color: white;
+  border-top:  gray;
+  border-bottom:  gray;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-width: 1px; 
+}
+
+.flux-pack-io.files-explorer{
+  background-color: #eeeeee;
+}
+.drive{
+  background-color: #393e46;
+  color: white;  
+  margin-top:0px
+}
+.folder{
+  background-color: #eeeeee;
+}
+.file{
+  background-color: #eeeeee;
+}
+.header:hover{
+  background-color: #00adb5;
+}
+.header.selected{
+  background-color:steelblue;
+}
+.header .actions{
+  display: none!important
+}
+.header:hover .actions{
+  display: flex!important
+}
+.file:hover{
+  color: black;
+}
+.file.selected{
+  color: black;
+}
+.progress.finished{
+  opacity:0
+}
+.dropzone{
+  background-color: white;
+  text-align: justify;
+}
+.dropzone.drop-highlight{
+  background-color: aliceblue;
+}
+.folder-header:hover{
+  color:black;
+  cursor: pointer;
+}
+
+
+
+.CodeMirror{
+  height:100% !important;
+  width:100%
+}
