@@ -5,6 +5,9 @@ import {Interfaces} from '../lib/implementation/interfaces'
 
 import {MockFolderHandler} from './mock-folder-handler'
 
+
+console.log = () =>{}
+
 let driveName = 'local-drive'
 
 function getMockData(){

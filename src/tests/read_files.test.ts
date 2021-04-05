@@ -4,7 +4,7 @@ import { Interfaces, Json } from "../lib/implementation/interfaces";
 import { LocalDrive, LocalFile } from "../lib/implementation/local-drive";
 import { MockFolderHandler } from "./mock-folder-handler";
 
-
+console.log = () =>{}
 
 export let mockData = {
     "":{

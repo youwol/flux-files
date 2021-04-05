@@ -6,6 +6,7 @@ import { LocalDrive } from "../lib/implementation/local-drive"
 import { ModuleLocalDrive } from "../lib/local-drive.module"
 import { MockFolderHandler } from "./mock-folder-handler"
 
+console.log = () =>{}
 
 export let mockData = {
     "":{

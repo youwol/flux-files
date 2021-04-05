@@ -1,6 +1,8 @@
 import { MockEnvironment } from "@youwol/flux-core"
 import { install } from "../lib/main"
 
+console.log = () =>{}
+
 let environment = new MockEnvironment({},[])
 
 test('install', (done) => {

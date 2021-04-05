@@ -1,13 +1,12 @@
 import { instantiateModules, ModuleError, parseGraph, Runner,  } from "@youwol/flux-core"
-import { mergeMap, tap } from "rxjs/operators"
 import { ModuleFilePicker } from "../lib/file-picker.module"
-import { Interfaces } from "../lib/implementation/interfaces"
-import { LocalDrive } from "../lib/implementation/local-drive"
 import { ModuleLocalDrive } from "../lib/local-drive.module"
 import { ModuleReader } from "../lib/reader.module"
 import { MockFolderHandler } from "./mock-folder-handler"
 
+
 console.log = ()=>{}
+
 export let mockData = {
     "":{
         files:{
