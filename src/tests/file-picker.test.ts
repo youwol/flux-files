@@ -1,4 +1,4 @@
-import { instantiateModules, ModuleError, parseGraph, Runner,  } from "@youwol/flux-core"
+import { instantiateModules, MockEnvironment, ModuleError, parseGraph, Runner,  } from "@youwol/flux-core"
 import { mergeMap, tap } from "rxjs/operators"
 import { ModuleFilePicker } from "../lib/file-picker.module"
 import { Interfaces } from "../lib/implementation/interfaces"
@@ -6,7 +6,14 @@ import { LocalDrive } from "../lib/implementation/local-drive"
 import { ModuleLocalDrive } from "../lib/local-drive.module"
 import { MockFolderHandler } from "./mock-folder-handler"
 
-console.log = () =>{}
+
+let environment = new MockEnvironment({
+    console: {
+        log: () => {},
+        error: (...args) => { console.error(args)},
+        warn: (...args) => { console.warn(args)}
+    }
+})
 
 export let mockData = {
     "":{
@@ -35,7 +42,7 @@ function createWorkflow({fileId}){
     } = instantiateModules({
         localDrive: ModuleLocalDrive,
         filePicker: [ModuleFilePicker, {fileId}]
-    }) 
+    }, {environment}) 
     let graph       = parseGraph( { branches, modules } )
     return {graph, modules}
 }
@@ -88,7 +95,7 @@ test('picker Error', (done) => {
         expect(modalDiv).toBeNull()
     })
 
-    modules.filePicker.notifier$.subscribe(
+    environment.errors$.subscribe(
         (message) => {
             expect(message).toBeInstanceOf(ModuleError)
             done()

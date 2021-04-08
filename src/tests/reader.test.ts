@@ -1,11 +1,17 @@
-import { instantiateModules, ModuleError, parseGraph, Runner,  } from "@youwol/flux-core"
+import { instantiateModules, MockEnvironment, ModuleError, parseGraph, Runner,  } from "@youwol/flux-core"
 import { ModuleFilePicker } from "../lib/file-picker.module"
 import { ModuleLocalDrive } from "../lib/local-drive.module"
 import { ModuleReader } from "../lib/reader.module"
 import { MockFolderHandler } from "./mock-folder-handler"
 
 
-console.log = ()=>{}
+let environment = new MockEnvironment({
+    console: {
+        log: () => {},
+        error: (...args) => { console.error(args)},
+        warn: (...args) => { console.warn(args)}
+    }
+})
 
 export let mockData = {
     "":{
@@ -37,7 +43,7 @@ function createWorkflow({fileId, mode}){
         localDrive: ModuleLocalDrive,
         filePicker: [ModuleFilePicker, {fileId}],
         reader: [ModuleReader, {mode}]
-    }) 
+    },{environment}) 
     let graph       = parseGraph( { branches, modules } )
     return {graph, modules}
 }
@@ -77,7 +83,7 @@ test('reader json error', (done) => {
     new Runner( graph )
     document.querySelectorAll('button').item(0).dispatchEvent(new MouseEvent('click'))
 
-    modules.reader.notifier$.subscribe(
+    environment.errors$.subscribe(
         (message) => {
             expect(message).toBeInstanceOf(ModuleError)
             done()
@@ -107,7 +113,7 @@ test('reader javascript parse error', (done) => {
     new Runner( graph )
     document.querySelectorAll('button').item(0).dispatchEvent(new MouseEvent('click'))
 
-    modules.reader.notifier$.subscribe(
+    environment.errors$.subscribe(
         (message) => {
             expect(message).toBeInstanceOf(ModuleError)
             done()

@@ -3,7 +3,7 @@ import { install } from "../lib/main"
 
 console.log = () =>{}
 
-let environment = new MockEnvironment({},[])
+let environment = new MockEnvironment()
 
 test('install', (done) => {
     
