@@ -54,8 +54,8 @@ test('read bytes', (done) => {
         mergeMap( (file:LocalFile) =>  file.read()
         )
     )
-    .subscribe( (content: Blob) => {
-        expect(content).toBeInstanceOf(Blob)
+    .subscribe( (content: ArrayBuffer) => {
+        expect(content).toBeInstanceOf(ArrayBuffer)
         done()
     })
 })

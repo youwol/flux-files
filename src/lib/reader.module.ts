@@ -77,7 +77,7 @@ export namespace ModuleReader {
          * -     'json' => JSON
          * -     'javascript' => any
          */
-        readonly content : Blob | string | JSON | any
+        readonly content : ArrayBuffer | string | JSON | any
 
         /**
          * The original file

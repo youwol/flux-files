@@ -257,7 +257,7 @@ export namespace Interfaces {
             public readonly drive: Drive, public readonly contentType: string){}
 
         
-        read(events$?: Subject<Event>): Observable<Blob> {
+        read(events$?: Subject<Event>): Observable<ArrayBuffer> {
             return this.drive.read(this.id, events$)
         }
         readAsText(events$?: Subject<Event>): Observable<string> {
@@ -353,7 +353,7 @@ export namespace Interfaces {
             events$?: Subject<Event> | Array<Subject<Event>>
             ): Observable<Interfaces.File | Interfaces.Folder | Interfaces.Drive>
 
-        abstract read(
+        abstract blob(
             fileId: string, 
             events$?: Subject<Event> | Array<Subject<Event>>
             ): Observable<Blob>
@@ -375,6 +375,27 @@ export namespace Interfaces {
             events$?: Subject<Event> | Array<Subject<Event>>
             ): Observable<any>
 
+        read(
+            fileId: string,
+            events$?:  Subject<Event> | Array<Subject<Event>> 
+            ): Observable<ArrayBuffer> {
+
+            let toArrayBuffer = (blob: Blob) => {
+                let reader = new FileReader()
+                return new Observable<ArrayBuffer>(subscriber => {
+                    reader.addEventListener("load", () => subscriber.next(reader.result as ArrayBuffer), false);
+                    reader.readAsArrayBuffer(blob)
+                    });
+            }
+            return this.blob(fileId, events$).pipe(
+                mergeMap( (blob:Blob)=>{
+                    // I believe the next call should always proceed with no error
+                    return toArrayBuffer(blob) 
+                }),
+                take(1)
+            )
+        }
+
         readAsText(
             fileId: string,
             events$?:  Subject<Event> | Array<Subject<Event>> 
@@ -387,7 +408,7 @@ export namespace Interfaces {
                     reader.readAsText(blob)
                   });
             }
-            return this.read(fileId, events$).pipe(
+            return this.blob(fileId, events$).pipe(
                 mergeMap( (blob:Blob)=>{
                     // I believe the next call should always proceed with no error
                     return toText(blob) 
@@ -408,7 +429,7 @@ export namespace Interfaces {
                     reader.readAsDataURL(blob)
                   });
             }
-            return this.read(fileId, events$).pipe(
+            return this.blob(fileId, events$).pipe(
                 mergeMap( (blob:Blob)=> toDataUrl(blob)),
                 take(1)
             )
@@ -435,7 +456,7 @@ export namespace Interfaces {
                     reader.readAsText(blob)
                 }); 
             }
-            return this.read(fileId, events$).pipe(
+            return this.blob(fileId, events$).pipe(
                 mergeMap( (blob:Blob)=> toJson(blob) ),
                 map( (data: Json | Error) => {
                     if(data instanceof Error)

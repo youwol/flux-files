@@ -56,7 +56,7 @@ test('read', (done) => {
     
     let drive = new LocalDrive("", 'local-drive', new MockFolderHandler(getMockData()))
 
-    drive.read('file0').pipe(
+    drive.blob('file0').pipe(
         mergeMap( (blob:Blob) => 
             from(new Promise( (cb) => {
                 var reader = new FileReader();

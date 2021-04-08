@@ -1,6 +1,6 @@
 
 import { from, Observable, of, Subject } from 'rxjs';
-import { map, mergeMap, tap } from 'rxjs/operators';
+import { map, merge, mergeMap, tap } from 'rxjs/operators';
 import { Interfaces } from './interfaces';
 
 
@@ -27,7 +27,7 @@ export class LocalDrive extends Interfaces.Drive {
         super(id, name)
     }
 
-    read(itemId: string, events$: Subject<Interfaces.Event> = undefined): Observable<Blob> {
+    blob(itemId: string, events$: Subject<Interfaces.Event> = undefined): Observable<File> {
 
         events$ = events$ || this.events$
         let follower = new Interfaces.RequestFollower({
@@ -40,10 +40,12 @@ export class LocalDrive extends Interfaces.Drive {
 
         return this.getFile(itemId).pipe(
             mergeMap((file) => {
-                return from(file.handle.getFile())
+                return from(file.handle.getFile()) as Observable<File>
             }),
-            tap((file) => follower.end())
-        ) as Observable<Blob>
+            tap((file: File) => {
+                follower.end()
+            })
+        ) 
     }
 
     listItems(
@@ -136,7 +138,7 @@ export class LocalDrive extends Interfaces.Drive {
         if (item instanceof Interfaces.Folder || item instanceof Interfaces.Drive)
             throw Error("Drive/Folder renaming has not been implemented in local-drive module")
 
-        return this.read(item.id).pipe(
+        return this.blob(item.id).pipe(
             mergeMap((blob) => this.createFile(item.parentFolderId, newName, blob)),
             mergeMap((file: LocalFile) => this.deleteFile(item.id).pipe(map(d => file)))
         )
