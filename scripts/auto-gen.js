@@ -10,7 +10,7 @@ let content = `export let AUTO_GENERATED = {
     name: "${package_json['name']}",
     namespace: "${namespace}",
     version: "${package_json['version']}",
-    description: "${package_json['DESCRIPTION']}"
+    description: "${package_json['description']}"
 }`
 
 fs.writeFile("./src/auto_generated.ts", content, function(err) {
