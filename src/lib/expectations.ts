@@ -16,14 +16,14 @@ export let drive = expectAnyOf<Interfaces.Drive>({
 })
 
 let realFile = expect<Interfaces.File>({ 
-    description: "a file",
+    description: "file",
     when:(data) => data instanceof Interfaces.File 
 })
 
 export let file = expectAnyOf<Interfaces.File>({
-    description: 'a file',
+    description: 'file',
     when: [
         realFile,
-        expectAttribute({name:'drive', when:realFile})
+        expectAttribute({name:'file', when:realFile})
     ]
 })
