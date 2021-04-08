@@ -57,6 +57,7 @@
     "webpack-cli": "4.6.0"
   },
   "youwol": {
+    "type":"flux-pack",
     "pipeline": {
       "name": "yw_pipeline_webpack_ts",
       "version": "0.0.0"
