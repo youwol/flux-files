@@ -85,7 +85,7 @@ test('reader json error', (done) => {
 
     environment.errors$.subscribe(
         (message) => {
-            expect(message).toBeInstanceOf(ModuleError)
+            expect(message.error).toBeInstanceOf(ModuleError)
             done()
     })
 })
@@ -115,7 +115,7 @@ test('reader javascript parse error', (done) => {
 
     environment.errors$.subscribe(
         (message) => {
-            expect(message).toBeInstanceOf(ModuleError)
+            expect(message.error).toBeInstanceOf(ModuleError)
             done()
     })
 })

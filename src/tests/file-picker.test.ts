@@ -97,7 +97,7 @@ test('picker Error', (done) => {
 
     environment.errors$.subscribe(
         (message) => {
-            expect(message).toBeInstanceOf(ModuleError)
+            expect(message.error).toBeInstanceOf(ModuleError)
             done()
     })     
 })

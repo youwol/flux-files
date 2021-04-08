@@ -1,6 +1,6 @@
 
 import { pack } from './main';
-import { Flux, BuilderView,ModuleFlow,Pipe, Schema, Property, contract, expectSingle, Context} from '@youwol/flux-core'
+import { Flux, BuilderView,ModuleFlow,Pipe, Schema, Property, contract, expectSingle, Context, ModuleError} from '@youwol/flux-core'
 import { map } from 'rxjs/operators';
 import { Interfaces } from './implementation/interfaces';
 import * as expectations from './expectations';
@@ -164,7 +164,7 @@ export namespace ModuleReader {
                 },
                 (error) =>{
                     context.error(
-                        new Error("Can not read the input file"),
+                        new ModuleError(this, "Can not read the input file"),
                         {
                             originalError: error,
                             file,

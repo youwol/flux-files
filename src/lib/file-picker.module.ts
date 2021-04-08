@@ -1,6 +1,6 @@
 
 import { pack } from './main';
-import { Property, Flux, BuilderView,ModuleFlow,Pipe, Schema, contract, expectSingle, Context} from '@youwol/flux-core'
+import { Property, Flux, BuilderView,ModuleFlow,Pipe, Schema, contract, expectSingle, Context, ModuleError} from '@youwol/flux-core'
 import { Interfaces } from './implementation/interfaces';
 import * as expectations from './expectations';
 
@@ -112,7 +112,7 @@ export namespace ModuleFilePicker {
                     this.file$.next({data: file, context}),
                 (error) =>   
                     context.error( 
-                        new Error('failed to retrieve a file from drive'), 
+                        new ModuleError(this, 'failed to retrieve a file from drive'), 
                         {
                             originalError:error,
                             drive,
