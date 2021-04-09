@@ -1,7 +1,7 @@
 
 import { pack } from './main';
 import { Flux, BuilderView, ModuleFlow, Pipe, Schema, Property, contract, Scene, RenderView,
-    expectSome, Context} from '@youwol/flux-core'
+    expectSome, Context, Journal} from '@youwol/flux-core'
 
 import { ImmutableTree } from '@youwol/fv-tree';
 import { attr$, render, VirtualDOM } from '@youwol/flux-view';
@@ -143,6 +143,7 @@ export namespace ModuleExplorer {
          * When selection is emitted this context is forwarded in the output.
          */
         contextsMap : {[key:string]: Context} = {}
+        outputContextsMap : {[key:string]: Context} = {}
 
         constructor(params) {
             super(params)
@@ -181,24 +182,38 @@ export namespace ModuleExplorer {
 
         addDrives( drives: Array<Interfaces.Drive>, config: PersistentData, context: Context) {
 
-            drives.forEach( drive => this.contextsMap[drive.id] = context)
+            drives.forEach( drive => {
+                this.contextsMap[drive.id] = context 
+                this.outputContextsMap[drive.id] = new Context(
+                    'selection processing context',
+                    context.userContext,
+                    this.logChannels 
+                )
+                this.addJournal({
+                    title: `selection for drive "${drive.name}"`,
+                    entryPoint: this.outputContextsMap[drive.id]
+                })
+            })
             this.scene = this.scene.add(drives)
+            context.end()
         }
 
         onSelected(node: Node){
+            
+            let outputContext = this.outputContextsMap[node.drive.id]
 
-            let context = this.contextsMap[node.drive.id]
             if( this.getConfiguration<PersistentData>().selectionEmit == "single file only" && 
                 node instanceof FileNode )
-                this.outSelection$.next({data:node.file, context})
+                this.outSelection$.next({data:node.file, context: outputContext})
             
             if( this.getConfiguration<PersistentData>().selectionEmit == "all" &&
                 node instanceof FileNode)
-                this.outSelection$.next({ data: new MultiSelection([node.file], []), context})
-
+                this.outSelection$.next({ data: new MultiSelection([node.file], []), context: outputContext}) 
+                
             if( this.getConfiguration<PersistentData>().selectionEmit == "all" &&
                 node instanceof FolderNode)
-                this.outSelection$.next({data:new MultiSelection([], [node.folder]), context})
+                this.outSelection$.next({data:new MultiSelection([], [node.folder]), context: outputContext}) 
+                
         }
     }
 
