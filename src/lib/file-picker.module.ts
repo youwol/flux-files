@@ -108,8 +108,10 @@ export namespace ModuleFilePicker {
             
             drive.getFile(config.fileId)
             .subscribe( 
-                (file: Interfaces.File) => 
-                    this.file$.next({data: file, context}),
+                (file: Interfaces.File) => {
+                    this.file$.next({data: file, context})
+                    context.end()
+                },
                 (error) =>   
                     context.error( 
                         new ModuleError(this, 'failed to retrieve a file from drive'), 

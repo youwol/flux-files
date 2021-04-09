@@ -161,6 +161,7 @@ export namespace ModuleReader {
             .subscribe( 
                 (data) => {
                     this.content$.next( {data:new Output({content:data, file}), context}) 
+                    context.end()
                 },
                 (error) =>{
                     context.error(
