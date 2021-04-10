@@ -125,7 +125,10 @@ export namespace ModuleExplorer {
     })
     @RenderView({
         namespace: ModuleExplorer,
-        render: (mdle) => renderHtmlElement(mdle)
+        render: (mdle) => renderHtmlElement(mdle),
+        wrapperDivAttributes: (_) => {
+            return { style: { height: "100%", width: "100%" } }
+        }
     })
     export class Module extends ModuleFlow {
 
