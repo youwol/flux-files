@@ -131,6 +131,20 @@ export namespace Interfaces {
         }
     }
 
+    export function getFolderRec(parentFolder: Drive | Folder, path:Array<string> ) : Observable<Folder>{
+
+        return parentFolder.drive.listItems(parentFolder.id).pipe(
+            mergeMap( ({folders}) => {
+                let folder = folders.find( folder => folder.name==path[0])
+                if(folder && path.length==1)
+                    return of(folder)
+                if(folder)
+                    return getFolderRec(folder, path.slice(1)).pipe( map((folder) => folder ))
+                    
+                throw Error(`Folder not found @ ${path.join('/')}`)
+            })
+        )
+    }
     export function getFolderOrCreateRec(parentFolder: Drive | Folder, path:Array<string> ) : Observable<{created:boolean, folder:Folder}>{
 
         // we should use a query here
