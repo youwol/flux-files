@@ -52,6 +52,37 @@ test('getFolderOrCreate', (done) =>{
 })
 
 
+test('getFolderRec', (done) =>{
+    let mock = new MockFolderHandler(getMockData())
+    let drive = new LocalDrive('', driveName, mock)
+    Interfaces.getFolderOrCreateRec(drive, ['tata','toto']).pipe(
+        mergeMap( () => Interfaces.getFolderRec(drive, ['tata','toto']))
+        ).subscribe(
+        (response) => {
+            expect(response).toBeInstanceOf(LocalFolder)
+            expect(response.id).toEqual("tata/toto")
+            expect(response.name).toEqual("toto")
+            done()
+        }
+    )
+})
+
+test('getFolderRec failed', (done) =>{
+    let mock = new MockFolderHandler(getMockData())
+    let drive = new LocalDrive('', driveName, mock)
+    Interfaces.getFolderOrCreateRec(drive, ['tata','toto']).pipe(
+        mergeMap( () => Interfaces.getFolderRec(drive, ['tata','tutu']))
+        ).subscribe(
+        (response) => {
+            throw Error("This path should not have been triggered: tutu does not exists")
+        },
+        (error) => {
+            done()
+        }
+    )
+})
+
+
 test('read', (done) => {
     
     let drive = new LocalDrive("", 'local-drive', new MockFolderHandler(getMockData()))
