@@ -1,6 +1,6 @@
 
 import { pack } from './main';
-import { Property, Flux, BuilderView,ModuleFlow,Pipe, Schema, contract, expectSingle, Context, ModuleError} from '@youwol/flux-core'
+import { Property, Flux, BuilderView,ModuleFlux,Pipe, Schema, contract, expectSingle, Context, ModuleError} from '@youwol/flux-core'
 import { Interfaces } from './implementation/interfaces';
 import * as expectations from './expectations';
 
@@ -77,7 +77,7 @@ export namespace ModuleFilePicker {
         namespace:      ModuleFilePicker,
         icon:           svgIcon
     })
-    export class Module extends ModuleFlow {
+    export class Module extends ModuleFlux {
         
         /**
          * Output of the module: a file

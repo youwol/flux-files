@@ -1,6 +1,6 @@
 
 import { pack } from './main';
-import { Flux, BuilderView, ModuleFlow, Pipe, Schema, Property, contract, Scene, RenderView,
+import { Flux, BuilderView, ModuleFlux, Pipe, Schema, Property, contract, Scene, RenderView,
     expectSome, Context, Journal} from '@youwol/flux-core'
 
 import { ImmutableTree } from '@youwol/fv-tree';
@@ -130,7 +130,7 @@ export namespace ModuleExplorer {
             return { style: { height: "100%", width: "100%" } }
         }
     })
-    export class Module extends ModuleFlow {
+    export class Module extends ModuleFlux {
 
         outSelection$: Pipe<SingleSelection | MultiSelection>
 

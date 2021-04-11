@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { pack } from './main';
-import { Flux,BuilderView, ModuleFlow, Pipe, Schema, Property } from "@youwol/flux-core"
+import { Flux,BuilderView, ModuleFlux, Pipe, Schema, Property } from "@youwol/flux-core"
 import { render, VirtualDOM } from '@youwol/flux-view'
 import { Modal } from '@youwol/fv-group'
 import { Button } from '@youwol/fv-button'
@@ -91,7 +91,7 @@ export namespace ModuleLocalDrive {
         namespace: ModuleLocalDrive,
         icon: svgIcon
     })
-    export class Module extends ModuleFlow {
+    export class Module extends ModuleFlux {
 
         /**
          * The drive output
