@@ -344,11 +344,11 @@ export namespace Interfaces {
             events$?: Subject<Event> | Array<Subject<Event>>
             ): Observable<File>
 
-        abstract updateFile(
-            file: File, 
+        abstract updateContent(
+            fileId: string, 
             content: Blob, 
             events$?: Subject<Event> | Array<Subject<Event>>
-            ): Observable<File>
+            ): Observable<any>
 
         abstract createFolder(
             parentFolderId: string, 

@@ -104,14 +104,29 @@ export class LocalDrive extends Interfaces.Drive {
         )
     }
 
-    updateFile(file: LocalFile, content): Observable<LocalFile> {
-        let write = async () => {
+    updateContent(
+        fileId: string, 
+        content: Blob, 
+        events$?:  Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
+        ): Observable<LocalFile> {
+
+        let follower = new Interfaces.RequestFollower({
+            targetId: fileId,
+            channels$: events$ || this.events$,
+            method: Interfaces.Method.UPLOAD
+        })
+        follower.start()
+        let write = async (file:LocalFile) => {
             const writable = await file.handle.createWritable();
             await writable.write(content);
             await writable.close();
             return file
         }
-        return from(write())
+
+        return this.getFile(fileId, events$).pipe(
+            mergeMap( (file:LocalFile) => from(write(file))),
+            tap( () => follower.end())
+        )
     }
 
     getFile(itemId: string, events$: Subject<Event> = undefined): Observable<LocalFile | never> {
