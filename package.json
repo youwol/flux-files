@@ -1,6 +1,6 @@
 {
     "name": "@youwol/flux-files",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "Collection of modules to work with files in Flux",
     "author": "greinisch@youwol.com",
     "keywords": [
