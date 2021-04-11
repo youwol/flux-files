@@ -145,9 +145,9 @@ export namespace Interfaces {
             })
         )
     }
+
     export function getFolderOrCreateRec(parentFolder: Drive | Folder, path:Array<string> ) : Observable<{created:boolean, folder:Folder}>{
 
-        // we should use a query here
         return parentFolder.drive.listItems(parentFolder.id).pipe(
             mergeMap( ({folders}) => {
                 let folder = folders.find( folder => folder.name==path[0])
@@ -165,9 +165,6 @@ export namespace Interfaces {
                         return getFolderOrCreateRec(folder, path.slice(1)).pipe( map(({created, folder}) => ({created, folder}) ))
                     })
                 )
-                /*return folder 
-                    ? getFolderOrCreateRec(folder, path.slice(1)).pipe( map(({created, folder}) => ({created, folder}) ))
-                    : parentFolder.drive.createFolder(parentFolder.id,path[0]).pipe( map( (folder) => ({created: true, folder}) ))*/
             })
         )
     }
