@@ -27,12 +27,14 @@ export class LocalDrive extends Interfaces.Drive {
         super(id, name)
     }
 
-    blob(itemId: string, events$: Subject<Interfaces.Event> = undefined): Observable<File> {
+    blob(
+        itemId: string, 
+        events$?: Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
+        ): Observable<File> {
 
-        events$ = events$ || this.events$
         let follower = new Interfaces.RequestFollower({
             targetId: itemId,
-            channels$: [events$],
+            channels$: events$ || this.events$,
             method: Interfaces.Method.DOWNLOAD
         })
         // Don't know how to get progress on file loading => hence the size of '1'
@@ -52,13 +54,12 @@ export class LocalDrive extends Interfaces.Drive {
         folderId: string,
         maxResults: number = 100,
         beginIterator: string = undefined,
-        events$: Subject<Interfaces.Event> = undefined
+        events$?: Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
     ): Observable<{ folders: Array<LocalFolder>, files: Array<LocalFile>, endIterator: string | undefined }> {
 
-        events$ = events$ || this.events$
         let follower = new Interfaces.RequestFollower({
             targetId: folderId,
-            channels$: [events$],
+            channels$: events$ || this.events$,
             method: Interfaces.Method.QUERY
         })
 
@@ -81,7 +82,12 @@ export class LocalDrive extends Interfaces.Drive {
         )
     }
 
-    createFile(folderId: string, name: string, content: Blob): Observable<LocalFile> {
+    createFile(
+        folderId: string, 
+        name: string, 
+        content: Blob,
+        events$?: Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
+        ): Observable<LocalFile> {
 
         return this.getFolder(folderId).pipe(
             mergeMap(folder => {
@@ -91,16 +97,28 @@ export class LocalDrive extends Interfaces.Drive {
                 return new LocalFile(fileHandle, folderId + '/' + name, name, folderId, this, "")
             }),
             mergeMap((file) => {
-                return this.updateFile(file, content)
+                return this.updateContent(file.id, content, events$)
             })
         )
     }
 
-    createFolder(parentFolderId: string, name: string): Observable<any> {
+    createFolder(
+        parentFolderId: string, 
+        name: string,
+        events$?:  Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
+        ): Observable<LocalFolder> {
 
+        let follower = new Interfaces.RequestFollower({
+            targetId: name,
+            channels$: events$ || this.events$,
+            method: Interfaces.Method.UPLOAD
+        })
+
+        follower.start()
         return this.getFolder(parentFolderId).pipe(
             mergeMap(folder => from(folder.handle.getDirectoryHandle(name, { create: true }))),
-            map((handle) => new LocalFolder(handle, parentFolderId + "/" + name, name, parentFolderId, this))
+            map((handle) => new LocalFolder(handle, parentFolderId + "/" + name, name, parentFolderId, this)),
+            tap( () => follower.end())
         )
     }
 
@@ -129,56 +147,111 @@ export class LocalDrive extends Interfaces.Drive {
         )
     }
 
-    getFile(itemId: string, events$: Subject<Event> = undefined): Observable<LocalFile | never> {
+    getFile(
+        itemId: string, 
+        events$?:  Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
+        ): Observable<LocalFile | never> {
+
+        let follower = new Interfaces.RequestFollower({
+            targetId: itemId,
+            channels$: events$ || this.events$,
+            method: Interfaces.Method.QUERY
+        })
+        follower.start()
 
         return this.getFileOrFolderHandle(itemId).pipe(
             map(handle => {
                 let name = itemId.split('/').slice(-1)[0]
                 let folderId = itemId.split('/').slice(0, -1).join('/')
                 return new LocalFile(handle, itemId, name, folderId, this, "")
-            })
+            }),
+            tap( () => follower.end())
         )
     }
 
-    getFolder(itemId: string, events$: Subject<Event> = undefined): Observable<LocalFolder> {
+    getFolder(
+        itemId: string, 
+        events$?: Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
+        ): Observable<LocalFolder> {
+
+        let follower = new Interfaces.RequestFollower({
+            targetId: itemId,
+            channels$: events$ || this.events$,
+            method: Interfaces.Method.QUERY
+        })
+        follower.start()
 
         return this.getFileOrFolderHandle(itemId).pipe(
-            map(handle => new LocalFolder(handle, itemId, itemId.split('/')[0], itemId.split('/').slice(0, -1).join('/'), this))
+            map(handle => new LocalFolder(handle, itemId, itemId.split('/')[0], itemId.split('/').slice(0, -1).join('/'), this)),
+            tap( () => follower.end())
         )
     }
 
-    renameItem(item: LocalFile | Interfaces.Folder | Interfaces.Drive, newName: string):
-        Observable<LocalFile> {
+    renameItem(
+        item: LocalFile | LocalFolder | LocalDrive, 
+        newName: string,
+        events$?: Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
+        ): Observable<LocalFile> {
 
         if (item instanceof Interfaces.Folder || item instanceof Interfaces.Drive)
             throw Error("Drive/Folder renaming has not been implemented in local-drive module")
 
+        let follower = new Interfaces.RequestFollower({
+            targetId: item.id,
+            channels$: events$ || this.events$,
+            method: Interfaces.Method.UPLOAD
+        })
+        follower.start()
+        
         return this.blob(item.id).pipe(
             mergeMap((blob) => this.createFile(item.parentFolderId, newName, blob)),
-            mergeMap((file: LocalFile) => this.deleteFile(item.id).pipe(map(d => file)))
+            mergeMap((file: LocalFile) => this.deleteFile(item.id).pipe(map(d => file))),
+            tap( () => follower.end())
         )
     }
 
-    deleteFile(fileId: string): Observable<any> {
+    deleteFile(
+        fileId: string,
+        events$?: Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
+        ): Observable<any> {
 
+        let follower = new Interfaces.RequestFollower({
+            targetId: fileId,
+            channels$: events$ || this.events$,
+            method: Interfaces.Method.DELETE
+        })
+        follower.start()
+        
         let parentId = fileId.split('/').slice(0, -1).join('/')
         return this.getFolder(parentId).pipe(
             mergeMap(folder => {
                 let name = fileId.split('/').slice(-1)[0]
                 return from(folder.handle.removeEntry(name))
-            })
+            }),
+            tap( () => follower.end())
         )
     }
 
-    deleteFolder(folderId: string): Observable<any> {
+    deleteFolder(
+        folderId: string,
+        events$?: Subject<Interfaces.Event> | Array<Subject<Interfaces.Event>>
+        ): Observable<any> {
 
+        let follower = new Interfaces.RequestFollower({
+            targetId: folderId,
+            channels$: events$ || this.events$,
+            method: Interfaces.Method.DELETE
+        })
+        follower.start()
+        
         let folderName = folderId.split('/').slice(-1)[0]
         let parentFolderId = folderId.split('/').slice(0, -1).join('/')
 
         return this.getFileOrFolderHandle(parentFolderId).pipe(
             mergeMap((folder: any) => {
                 return from(folder.removeEntry(folderName, { recursive: true }))
-            })
+            }),
+            tap( () => follower.end())
         )
     }
 
