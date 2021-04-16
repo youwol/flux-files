@@ -27,9 +27,7 @@ export namespace ModuleFilePicker {
      * The configuration allows to provide the fileId to select
      */
     @Schema({
-        pack: pack,
-        description: "Persistent Data of FilesExplorer",
-        namespace:      ModuleFilePicker,
+        pack: pack
     })
     export class PersistentData {
 

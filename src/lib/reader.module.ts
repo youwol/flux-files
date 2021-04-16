@@ -35,9 +35,7 @@ export namespace ModuleReader {
      * 
      */
     @Schema({
-        pack: pack,
-        description: "Persistent Data of FilesExplorer",
-        namespace: ModuleReader,
+        pack: pack
     })
     export class PersistentData {
 

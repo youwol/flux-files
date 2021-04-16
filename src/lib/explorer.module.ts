@@ -123,7 +123,7 @@ export namespace ModuleExplorer {
         namespace: ModuleExplorer,
         icon: svgIcon
     })
-    @RenderView({
+    @RenderView<Module>({
         namespace: ModuleExplorer,
         render: (mdle) => renderHtmlElement(mdle),
         wrapperDivAttributes: (_) => {
@@ -205,15 +205,15 @@ export namespace ModuleExplorer {
             
             let outputContext = this.outputContextsMap[node.drive.id]
 
-            if( this.getConfiguration<PersistentData>().selectionEmit == "single file only" && 
+            if( this.getPersistentData<PersistentData>().selectionEmit == "single file only" && 
                 node instanceof FileNode )
                 this.outSelection$.next({data:node.file, context: outputContext})
             
-            if( this.getConfiguration<PersistentData>().selectionEmit == "all" &&
+            if( this.getPersistentData<PersistentData>().selectionEmit == "all" &&
                 node instanceof FileNode)
                 this.outSelection$.next({ data: new MultiSelection([node.file], []), context: outputContext}) 
                 
-            if( this.getConfiguration<PersistentData>().selectionEmit == "all" &&
+            if( this.getPersistentData<PersistentData>().selectionEmit == "all" &&
                 node instanceof FolderNode)
                 this.outSelection$.next({data:new MultiSelection([], [node.folder]), context: outputContext}) 
                 

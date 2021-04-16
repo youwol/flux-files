@@ -164,9 +164,9 @@ test('multiple drives',(done) => {
     let drive1 = new LocalDrive("local-drive-1", 'custom name bis', new MockFolderHandler(mockData))
     let drive2 = new LocalDrive("local-drive-2", 'custom name bis', new MockFolderHandler(mockData))
 
-    modules.explorer.addDrives([drive], modules.explorer.getConfiguration(), new Context("",{}))
-    modules.explorer.addDrives([drive1], modules.explorer.getConfiguration(), new Context("",{}))
-    modules.explorer.addDrives([drive2], modules.explorer.getConfiguration(), new Context("",{}))
+    modules.explorer.addDrives([drive], modules.explorer.getPersistentData(), new Context("",{}))
+    modules.explorer.addDrives([drive1], modules.explorer.getPersistentData(), new Context("",{}))
+    modules.explorer.addDrives([drive2], modules.explorer.getPersistentData(), new Context("",{}))
 
     expect(modules.explorer.scene.inCache.map( d => d.id)).toEqual(["local-drive","local-drive-2"])
     done()

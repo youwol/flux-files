@@ -2,7 +2,7 @@ import { expect, expectAnyOf, expectAttribute } from "@youwol/flux-core";
 import { Interfaces } from "./implementation/interfaces";
 
 
-let realDrive = expect({ 
+let realDrive = expect<Interfaces.Drive >({ 
     description: "drive",
     when:(data) => data instanceof Interfaces.Drive 
 })

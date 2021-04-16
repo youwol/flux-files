@@ -29,9 +29,7 @@ export namespace ModuleLocalDrive {
      * 
      */
     @Schema({
-        pack: pack,
-        description: "Persistent Data of Drive",
-        namespace: ModuleLocalDrive,
+        pack: pack
     })
     export class PersistentData {
 
@@ -123,7 +121,7 @@ export namespace ModuleLocalDrive {
                 take(1),
                 mergeMap( () => from(window['showDirectoryPicker']()) ),
                 map( handle => {
-                    let config = this.getConfiguration<PersistentData>()
+                    let config = this.getPersistentData<PersistentData>()
                     return new LocalDrive(config.driveId, config.driveName, handle) 
                 })
             )
