@@ -82,7 +82,7 @@ export namespace ModuleLocalDrive {
         displayName: "Local Drive",
         description: "A module to connect to a local folder of the computer for fetching/browsing files.",
         resources: {
-            'technical doc': `${pack.urlCDN}/dist/docs/modules/modulelocaldrive.html`
+            'technical doc': `${pack.urlCDN}/dist/docs/modules/lib_local_drive_module.modulelocaldrive.html`
         }
     })
     @BuilderView({

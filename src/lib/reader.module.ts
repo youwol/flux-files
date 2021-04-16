@@ -114,7 +114,7 @@ export namespace ModuleReader {
         displayName:    "Reader",
         description:    "This module is used to read the content of the file",
         resources: {
-            'technical doc': `${pack.urlCDN}/dist/docs/modules/modulereader.html`
+            'technical doc': `${pack.urlCDN}/dist/docs/modules/lib_reader_module.modulereader.html`
         }
     })
     @BuilderView({

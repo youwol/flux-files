@@ -68,7 +68,7 @@ export namespace ModuleFilePicker {
         displayName:    "File Picker",
         description:    "This module allows to select a file from an id and a drive",
         resources: {
-            'technical doc': `${pack.urlCDN}/dist/docs/modules/modulelocaldrive.html`
+            'technical doc': `${pack.urlCDN}/dist/docs/modules/lib_file_picker_module.modulefilepicker.html`
         }
     })
     @BuilderView({

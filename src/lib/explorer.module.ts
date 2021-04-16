@@ -116,7 +116,7 @@ export namespace ModuleExplorer {
         displayName: "Explorer",
         description: "This module allows to explore files and data in your workspace",
         resources: {
-            'technical doc': `${pack.urlCDN}/dist/docs/modules/moduleexplorer.html`,
+            'technical doc': `${pack.urlCDN}/dist/docs/modules/lib_explorer_module.moduleexplorer.html`,
         }
     })
     @BuilderView({
