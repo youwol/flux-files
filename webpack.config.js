@@ -36,7 +36,7 @@ module.exports = {
         '@youwol/fv-group': "@youwol/fv-group",
         '@youwol/fv-button': "@youwol/fv-button",
         '@youwol/fv-tree': "@youwol/fv-tree",
-        '@youwol/cdn': '@youwol/cdn',
+        '@youwol/cdn-client': '@youwol/cdn-client',
         'reflect-metadata': {
             commonjs:'reflect-metadata',
             commonjs2:'reflect-metadata',

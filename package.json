@@ -18,7 +18,8 @@
         "build:prod": "yarn autogen && webpack --mode production",
         "test": "jest -c ./jest.config.js --rootDir . -i",
         "test-coverage": "jest -c ./jest.config.js --rootDir . -i --collect-coverage --collectCoverageFrom=./src/lib/**/*.ts ",
-        "publish-npm-public": "yarn build:prod && yarn test-coverage && yarn publish --access public"
+        "publish-npm-public": "yarn build:prod && yarn test-coverage && yarn publish --access public",
+        "upgrade-youwol": "yarn upgrade @youwol/cdn-client @youwol/flux-core @youwol/flux-view @youwol/fv-button @youwol/fv-group @youwol/fv-tree"
     },
     "dependencies": {},
     "peerDependencies": {
@@ -59,7 +60,7 @@
     "youwol": {
         "type": "flux-pack",
         "pipeline": {
-            "name": "yw_pipeline_webpack_ts",
+            "name": "yw_pipeline_flux_pack",
             "version": "0.0.0"
         },
         "cdnDependencies": {
