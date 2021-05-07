@@ -6,7 +6,7 @@ import { Flux, BuilderView, ModuleFlux, Pipe, Schema, Property, contract, Scene,
 import { ImmutableTree } from '@youwol/fv-tree';
 import { attr$, render, VirtualDOM } from '@youwol/flux-view';
 import { filter, map, tap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Interfaces } from './implementation/interfaces';
 import * as expectations from './expectations';
 
@@ -201,7 +201,7 @@ export namespace ModuleExplorer {
             context.end()
         }
 
-        onSelected(node: Node){
+        onSelected(node: DriveChildNode){
             
             let outputContext = this.outputContextsMap[node.drive.id]
 
@@ -221,24 +221,37 @@ export namespace ModuleExplorer {
     }
 
 
-    class Node extends ImmutableTree.Node{
+    export class Node extends ImmutableTree.Node{
 
         name: string
 
-        event$ : Observable<Interfaces.EventIO>
-        drive: Interfaces.Drive
+        events$ : Observable<Interfaces.EventIO>
 
-        constructor({id, name, children, drive}: {id: string,name: string, drive: Interfaces.Drive, children? } ){
+        constructor({id, name, children, events$}: {id: string,name: string, events$?: Observable<Interfaces.EventIO>, children? } ){
             super({id,children})
             this.name = name
-            this.drive = drive
-            this.event$ = this.drive.events$.pipe( 
-                filter( (event: Interfaces.EventIO) => event.targetId == id)
-            )
+            this.events$ = events$ || new Subject<Interfaces.EventIO>()
         }
     }
 
-    class RootNode extends ImmutableTree.Node{
+    export class DriveChildNode extends Node{
+
+        drive: Interfaces.Drive
+
+        constructor({id, name, children, drive}: {id: string,name: string, drive: Interfaces.Drive, children? } ){
+            super({
+                id,
+                name, 
+                children,
+                events$ : drive.events$.pipe( 
+                    filter( (event: Interfaces.EventIO) => event.targetId == id)
+                )
+            })
+            this.drive = drive
+        }
+    }
+
+    export class RootNode extends ImmutableTree.Node{
 
         name: string
 
@@ -260,36 +273,51 @@ export namespace ModuleExplorer {
         )
     }
 
-    class DriveNode extends Node{
+
+    export class DriveNode extends DriveChildNode{
 
         drive: Interfaces.Drive
 
         constructor(
             {drive}: { drive: Interfaces.Drive} ){
-            super({ id: drive.name, name: drive.name, children: children(drive, drive.id), drive})
+            super({ 
+                id: drive.name, 
+                name: drive.name, 
+                children: children(drive, drive.id), 
+                drive
+            })
             this.drive = drive
         }
     }
 
-    class FileNode extends Node{
+    export class FileNode extends DriveChildNode{
 
         file: Interfaces.File
 
         constructor(
             {file}: { file: Interfaces.File} ){
-            super({ id: file.id, name: file.name, drive: file.drive})
+            super({ 
+                id: file.id, 
+                name: file.name, 
+                drive:  file.drive
+            })
 
             this.file = file
         }
     }
 
-    class FolderNode extends Node{
+    export class FolderNode extends DriveChildNode{
 
         folder : Interfaces.Folder
 
         constructor(
             {folder}: { folder: Interfaces.Folder} ){
-            super({ id: folder.id, name: folder.name, children:  children(folder.drive, folder.id), drive: folder.drive})
+            super({ 
+                id: folder.id, 
+                name: folder.name, 
+                children:  children(folder.drive, folder.id), 
+                drive: folder.drive
+                })
             this.folder = folder
         }
     }
@@ -305,7 +333,7 @@ export namespace ModuleExplorer {
             headerView: (state, node) => headerView(state, node),
             connectedCallback : (elem) => {
                 elem.subscriptions.push(
-                    mdle.treeState.selectedNode$.subscribe( node => mdle.onSelected(node as Node))
+                    mdle.treeState.selectedNode$.subscribe( node => mdle.onSelected(node as DriveChildNode))
                 )
             },
             class: 'fv-bg-background fv-text-primary h-100 overflow-auto',
@@ -314,7 +342,7 @@ export namespace ModuleExplorer {
         return render(view)
     }
 
-    function headerView( _: ImmutableTree.State<Node>, node: Node) : VirtualDOM {
+    export function headerView( _: ImmutableTree.State<Node>, node: Node) : VirtualDOM {
 
         let classes = ""
 
@@ -336,7 +364,7 @@ export namespace ModuleExplorer {
                 { class : classes + " px-2" },
                 { innerText: node.name },
                 { class : attr$( 
-                    node.event$,
+                    node.events$,
                     (event: Interfaces.EventIO) => event.step == Interfaces.Step.FINISHED ? '' : 'fas fa-spinner fa-spin'
                     )
                 }
