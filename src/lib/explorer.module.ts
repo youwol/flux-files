@@ -238,13 +238,27 @@ export namespace ModuleExplorer {
 
         drive: Interfaces.Drive
 
-        constructor({id, name, children, drive}: {id: string,name: string, drive: Interfaces.Drive, children? } ){
+        constructor({
+            id, 
+            name, 
+            children, 
+            events$,
+            drive}: { 
+                id: string, 
+                name: string, 
+                drive: Interfaces.Drive, 
+                children?,
+                events$?:  Observable<Interfaces.EventIO> 
+            }){
+
             super({
                 id,
                 name, 
                 children,
-                events$ : drive.events$.pipe( 
-                    filter( (event: Interfaces.EventIO) => event.targetId == id)
+                events$ : events$ || drive.events$.pipe( 
+                    filter( (event: Interfaces.EventIO) => {
+                        return event.targetId == id 
+                    })
                 )
             })
             this.drive = drive
@@ -284,7 +298,12 @@ export namespace ModuleExplorer {
                 id: drive.name, 
                 name: drive.name, 
                 children: children(drive, drive.id), 
-                drive
+                drive,
+                events$: drive.events$.pipe( 
+                    filter( (event: Interfaces.EventIO) => {
+                        return event.targetId == drive.id 
+                    })
+                )
             })
             this.drive = drive
         }
