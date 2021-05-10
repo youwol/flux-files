@@ -361,26 +361,38 @@ export namespace ModuleExplorer {
         return render(view)
     }
 
-    export function headerView( _: ImmutableTree.State<Node>, node: Node) : VirtualDOM {
+    export function headerView( 
+        _: ImmutableTree.State<Node>, 
+        node: Node, 
+        customHeadersView : Array<{target: (Node)=>boolean, classes?, icon? }> = []) : VirtualDOM {
 
-        let classes = ""
+        let defaultIcon = ""
+
+        let customHeader = customHeadersView.find(custom => custom.target(node))
 
         if(node instanceof RootNode)
             return { innerText: node.name }
         
         if(node instanceof DriveNode)
-            classes = "fas fa-hdd"
+            defaultIcon = "fas fa-hdd"
         
         if(node instanceof FileNode)
-            classes = "fas fa-file"
+            defaultIcon = "fas fa-file"
         
         if(node instanceof FolderNode)
-            classes = "fas fa-folder"
-        
+            defaultIcon = "fas fa-folder"
+
+        let icon = (customHeader && customHeader.icon) 
+            ? customHeader.icon
+            : defaultIcon
+        let classes = (customHeader && customHeader.classes) 
+            ?  customHeader.classes
+            : 'd-flex align-items-center fv-pointer' 
+
         return {
-            class:'d-flex align-items-center fv-pointer',
+            class:classes ,
             children:[
-                { class : classes + " px-2" },
+                { class : icon + " px-2" },
                 { innerText: node.name },
                 { class : attr$( 
                     node.events$,
