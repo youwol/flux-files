@@ -201,8 +201,10 @@ export namespace ModuleExplorer {
             context.end()
         }
 
-        onSelected(node: DriveChildNode){
-            
+        onSelected(node: Node){
+            if(! (node instanceof DriveChildNode))
+                return 
+
             let outputContext = this.outputContextsMap[node.drive.id]
 
             if( this.getPersistentData<PersistentData>().selectionEmit == "single file only" && 
